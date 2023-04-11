@@ -40,7 +40,6 @@ public class MainFrame extends JFrame{
     private JLabel savingDirectoryPathLabel;
     private ChartSettingsFrame chartSettingsFrame;
 
-
     private DataMediator mediator;
 
     public MainFrame() {
@@ -113,7 +112,7 @@ public class MainFrame extends JFrame{
 
         buildChartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                chartSettingsFrame = new ChartSettingsFrame(mediator.sendDataframe());
+                chartSettingsFrame = new ChartSettingsFrame(mediator.sendDataFrame());
             }
         });
 
@@ -173,10 +172,10 @@ public class MainFrame extends JFrame{
                     tablePanel.repaint();
                     tablePanel.revalidate();
 
-                    String[] keySetArray = new String[mediator.sendDataframe().getData().keySet().toArray().length + 1];
+                    String[] keySetArray = new String[mediator.sendDataFrame().getData().keySet().toArray().length + 1];
                     keySetArray[0] = "Название величины";
                     for (int i = 1; i < keySetArray.length; i++) {
-                        keySetArray[i] = mediator.sendDataframe().getData().keySet().toArray()[i - 1].toString();
+                        keySetArray[i] = mediator.sendDataFrame().getData().keySet().toArray()[i - 1].toString();
 
                     }
 
@@ -184,16 +183,16 @@ public class MainFrame extends JFrame{
                     String[] statFunctions = new String[]{"count", "mean", "std", "min", "max", "1st quantile", "median", "3rd quantile"};
                     ArrayList<String[]> statData = new ArrayList<>();
                     statData.add(statFunctions);
-                    for (String key : mediator.sendDataframe().getData().keySet()) {
+                    for (String key : mediator.sendDataFrame().getData().keySet()) {
                         String[] columnStatData = new String[statFunctions.length];
-                        columnStatData[0] = String.valueOf(StatUtils.count(mediator.sendDataframe(), key));
-                        columnStatData[1] = String.valueOf(StatUtils.mean(mediator.sendDataframe(), key));
-                        columnStatData[2] = String.valueOf(StatUtils.std(mediator.sendDataframe(), key));
-                        columnStatData[3] = String.valueOf(StatUtils.min(mediator.sendDataframe(), key));
-                        columnStatData[4] = String.valueOf(StatUtils.max(mediator.sendDataframe(), key));
-                        columnStatData[5] = String.valueOf(StatUtils.percentile(mediator.sendDataframe(), key, 0.25));
-                        columnStatData[6] = String.valueOf(StatUtils.percentile(mediator.sendDataframe(), key, 0.5));
-                        columnStatData[7] = String.valueOf(StatUtils.percentile(mediator.sendDataframe(), key, 0.75));
+                        columnStatData[0] = String.valueOf(StatUtils.count(mediator.sendDataFrame(), key));
+                        columnStatData[1] = String.valueOf(StatUtils.mean(mediator.sendDataFrame(), key));
+                        columnStatData[2] = String.valueOf(StatUtils.std(mediator.sendDataFrame(), key));
+                        columnStatData[3] = String.valueOf(StatUtils.min(mediator.sendDataFrame(), key));
+                        columnStatData[4] = String.valueOf(StatUtils.max(mediator.sendDataFrame(), key));
+                        columnStatData[5] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.25));
+                        columnStatData[6] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.5));
+                        columnStatData[7] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.75));
                         statData.add(columnStatData);
                         System.out.println(Arrays.toString(columnStatData));
                     }

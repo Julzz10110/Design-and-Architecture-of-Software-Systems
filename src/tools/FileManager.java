@@ -71,7 +71,7 @@ public class FileManager {
             }
             tableData.add(row);
         }
-        mediator.formDataframe(columnHeaders, tableData);
+        mediator.formDataFrame(columnHeaders, tableData);
         mediator.formTableModel(columnHeaders, tableData);
 
     }
@@ -137,7 +137,7 @@ public class FileManager {
         }
         System.out.println(columnHeaders.toArray()[1] + " " + tableData.toArray()[0]);
 
-        mediator.formDataframe(columnHeaders, tableData);
+        mediator.formDataFrame(columnHeaders, tableData);
         mediator.formTableModel(columnHeaders, tableData);
     }
 

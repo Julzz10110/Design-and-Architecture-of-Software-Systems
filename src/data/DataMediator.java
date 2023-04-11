@@ -17,7 +17,7 @@ public class DataMediator {
     }
 
     public static DataMediator getInstance() {
-        return DataMediator.DataFrameMediatorHolder.instance;
+        return DataMediatorHolder.instance;
     }
 
     public void setMainFrame(MainFrame mainFrame) {
@@ -33,7 +33,6 @@ public class DataMediator {
         for (ArrayList<Object> row : tableData) {
             tableModel.addRow(row.toArray(new Object[0]));
         }
-
     }
 
     public FileManager getFileManager() {
@@ -44,7 +43,7 @@ public class DataMediator {
         this.fileManager = fileManager;
     }
 
-    public DataFrame sendDataframe() {
+    public DataFrame sendDataFrame() {
         return dataFrame;
     }
 
@@ -52,9 +51,7 @@ public class DataMediator {
         return tableModel;
     }
 
-    private static class DataFrameMediatorHolder {
+    private static class DataMediatorHolder {
         private final static DataMediator instance = new DataMediator();
     }
-
-
 }
