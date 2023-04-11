@@ -50,8 +50,4 @@ class ImageConverterTest {
         assertNull(convertedFile);
         System.out.println("Тест №4 успешно пройден");
     }
-
-
-
-
 }

@@ -1,7 +1,7 @@
 package tools;
 
 import com.opencsv.CSVReader;
-import data.DataFrame;
+import data.DataMediator;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -10,8 +10,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import javax.swing.table.DefaultTableModel;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,18 +23,36 @@ import java.util.Iterator;
 
 public class FileManager {
     private boolean columnsIterating;
-    protected ArrayList<Object> columnHeaders;
-    protected ArrayList<ArrayList<Object>> tableData;
-    
-    public Object[] loadDataCSV(String pathName) {
+    private ArrayList<Object> columnHeaders;
+    private ArrayList<ArrayList<Object>> tableData;
+    private DataMediator mediator;
+
+    private FileManager() {
+        mediator = DataMediator.getInstance();
+        mediator.setFileManager(FileManagerHolder.instance);
+    }
+
+    public static FileManager getInstance() {
+        return FileManagerHolder.instance;
+    }
+
+    public static void main(String[] args) {
+        System.out.print("Проверка на единственность экземпляра: ");
+        FileManager first = FileManager.getInstance();
+        FileManager second = FileManager.getInstance();
+        System.out.print(first == second);
+
+    }
+
+    public void loadDataCSV(String pathName) {
         Path filePath = Paths.get(pathName);
         ArrayList<String[]> inputData = new ArrayList<>();
         try (Reader reader = Files.newBufferedReader(filePath)) {
             CSVReader csvReader = new CSVReader(reader);
-                String[] line;
-                while ((line = csvReader.readNext()) != null) {
-                    inputData.add(line);
-                }
+            String[] line;
+            while ((line = csvReader.readNext()) != null) {
+                inputData.add(line);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -49,29 +69,23 @@ public class FileManager {
                     row.add(inputData.get(i)[j].trim());
                 }
             }
-            //row.addAll(Arrays.asList(inputData.get(i)));
             tableData.add(row);
         }
-        DataFrame data = new DataFrame(columnHeaders, tableData);
+        mediator.formDataframe(columnHeaders, tableData);
+        mediator.formTableModel(columnHeaders, tableData);
 
-        DefaultTableModel tableModel = new DefaultTableModel(columnHeaders.toArray(), 0);
-        for (ArrayList<Object> row : tableData) {
-            tableModel.addRow(row.toArray(new Object[0]));
-        }
-
-        return new Object[]{data, tableModel};
     }
-    public Object[] loadDataExcel(String pathName) {
 
-        try
-        {
+    public void loadDataExcel(String pathName) {
+
+        try {
             columnsIterating = true;
             columnHeaders = new ArrayList<>();
             tableData = new ArrayList<>();
 
-            Object wb;
-            Object sheet;
-            Iterator<Row> itr;
+            Object wb = null;
+            Object sheet = null;
+            Iterator<Row> itr = null;
 
             File file = new File(pathName);
             FileInputStream fis = new FileInputStream(file);
@@ -88,7 +102,6 @@ public class FileManager {
                 itr = ((HSSFSheet) sheet).iterator();
             } else {
                 System.out.println("ОШИБКА: Невозможно прочитать файл");
-                return null;
             }
             while (itr.hasNext())
             {
@@ -119,21 +132,17 @@ public class FileManager {
                 ((Workbook) wb).close();
                 fis.close();
             }
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(columnHeaders.toArray()[1] + " "+ tableData.toArray()[0]);
+        System.out.println(columnHeaders.toArray()[1] + " " + tableData.toArray()[0]);
 
-        DataFrame data = new DataFrame(columnHeaders, tableData);
-
-        DefaultTableModel tableModel = new DefaultTableModel(columnHeaders.toArray(), 0);
-        for (ArrayList<Object> row : tableData) {
-            tableModel.addRow(row.toArray(new Object[0]));
-        }
-        return new Object[]{data, tableModel};
+        mediator.formDataframe(columnHeaders, tableData);
+        mediator.formTableModel(columnHeaders, tableData);
     }
 
+    private static class FileManagerHolder {
+        private final static FileManager instance = new FileManager();
+    }
 
 }

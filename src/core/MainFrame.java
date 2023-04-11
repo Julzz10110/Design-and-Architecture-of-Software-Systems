@@ -2,7 +2,7 @@ package core;
 
 import charts.BarChart;
 import charts.Chart;
-import data.DataFrame;
+import data.DataMediator;
 import data.StatUtils;
 import tools.ChartSnapshotManager;
 import tools.FileManager;
@@ -34,14 +34,14 @@ public class MainFrame extends JFrame{
     private JPanel chartPanel;
     private JTable inputTable = new JTable();
     private JTable statTable = new JTable();
-    private FileManager fileManager = new FileManager();
 
     private ChartSnapshotManager snapshotManager = new ChartSnapshotManager();
 
     private JLabel savingDirectoryPathLabel;
     private ChartSettingsFrame chartSettingsFrame;
 
-    private DataFrame tableData;
+
+    private DataMediator mediator;
 
     public MainFrame() {
         create();
@@ -67,6 +67,10 @@ public class MainFrame extends JFrame{
         dataPanel.setLayout(new BoxLayout(dataPanel, BoxLayout.Y_AXIS));
         add(dataPanel);
         add(chartPanel);
+
+        mediator = DataMediator.getInstance();
+        mediator.setMainFrame(this);
+        mediator.setFileManager(FileManager.getInstance());
 
 
         // тестовая прорисовка
@@ -109,7 +113,7 @@ public class MainFrame extends JFrame{
 
         buildChartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                 chartSettingsFrame = new ChartSettingsFrame(tableData);
+                chartSettingsFrame = new ChartSettingsFrame(mediator.sendDataframe());
             }
         });
 
@@ -153,17 +157,15 @@ public class MainFrame extends JFrame{
                     File file = fileChooser.getSelectedFile();
                     int dotIndex = file.getAbsolutePath().lastIndexOf('.');
                     String extension = (dotIndex == -1) ? "" : file.getAbsolutePath().substring(dotIndex + 1);
-                    Object[] tableSet;
                     if (extension.equals("xlsx") || extension.equals("xls"))  {
-                        tableSet = fileManager.loadDataExcel(file.getPath());
+                        mediator.getFileManager().loadDataExcel(file.getPath());
                     } else if (extension.equals("csv")) {
-                        tableSet = fileManager.loadDataCSV(file.getPath());
+                        mediator.getFileManager().loadDataCSV(file.getPath());
                     } else {
                         System.out.println("ОШИБКА: Невозможно открыть файл");
                         return;
                     }
-                    tableData = (DataFrame) tableSet[0];
-                    DefaultTableModel inputTableModel = (DefaultTableModel) tableSet[1];
+                    DefaultTableModel inputTableModel = mediator.sendTabelModel();
                     inputTable.setModel(inputTableModel);
                     contents = new Box(BoxLayout.Y_AXIS);
                     contents.add(new JScrollPane(inputTable));
@@ -171,10 +173,10 @@ public class MainFrame extends JFrame{
                     tablePanel.repaint();
                     tablePanel.revalidate();
 
-                    String[] keySetArray = new String[tableData.getData().keySet().toArray().length + 1];
+                    String[] keySetArray = new String[mediator.sendDataframe().getData().keySet().toArray().length + 1];
                     keySetArray[0] = "Название величины";
                     for (int i = 1; i < keySetArray.length; i++) {
-                        keySetArray[i] = tableData.getData().keySet().toArray()[i-1].toString();
+                        keySetArray[i] = mediator.sendDataframe().getData().keySet().toArray()[i - 1].toString();
 
                     }
 
@@ -182,19 +184,19 @@ public class MainFrame extends JFrame{
                     String[] statFunctions = new String[]{"count", "mean", "std", "min", "max", "1st quantile", "median", "3rd quantile"};
                     ArrayList<String[]> statData = new ArrayList<>();
                     statData.add(statFunctions);
-                    for (String key : tableData.getData().keySet()) {
+                    for (String key : mediator.sendDataframe().getData().keySet()) {
                         String[] columnStatData = new String[statFunctions.length];
-                        columnStatData[0] = String.valueOf(StatUtils.count(tableData, key));
-                        columnStatData[1] = String.valueOf(StatUtils.mean(tableData, key));
-                        columnStatData[2] = String.valueOf(StatUtils.std(tableData, key));
-                        columnStatData[3] = String.valueOf(StatUtils.min(tableData, key));
-                        columnStatData[4] = String.valueOf(StatUtils.max(tableData, key));
-                        columnStatData[5] = String.valueOf(StatUtils.percentile(tableData, key, 0.25));
-                        columnStatData[6] = String.valueOf(StatUtils.percentile(tableData, key, 0.5));
-                        columnStatData[7] = String.valueOf(StatUtils.percentile(tableData, key, 0.75));
+                        columnStatData[0] = String.valueOf(StatUtils.count(mediator.sendDataframe(), key));
+                        columnStatData[1] = String.valueOf(StatUtils.mean(mediator.sendDataframe(), key));
+                        columnStatData[2] = String.valueOf(StatUtils.std(mediator.sendDataframe(), key));
+                        columnStatData[3] = String.valueOf(StatUtils.min(mediator.sendDataframe(), key));
+                        columnStatData[4] = String.valueOf(StatUtils.max(mediator.sendDataframe(), key));
+                        columnStatData[5] = String.valueOf(StatUtils.percentile(mediator.sendDataframe(), key, 0.25));
+                        columnStatData[6] = String.valueOf(StatUtils.percentile(mediator.sendDataframe(), key, 0.5));
+                        columnStatData[7] = String.valueOf(StatUtils.percentile(mediator.sendDataframe(), key, 0.75));
                         statData.add(columnStatData);
                         System.out.println(Arrays.toString(columnStatData));
-                        }
+                    }
 
                     String[] rowStatData = new String[statFunctions.length];
                     int index = 0;

@@ -4,31 +4,32 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class DataFrame{
+public class DataFrame {
 
     private HashMap<String, ArrayList<Object>> data = new HashMap<>();
-        public DataFrame(ArrayList<Object> columnHeaders, ArrayList<ArrayList<Object>> tableData) {
-            ArrayList<String> columns = new ArrayList<>();
-            ArrayList<ArrayList<Object>> normalizedData = new ArrayList<>();
-                for (ArrayList<Object> row : tableData) {
-                    ArrayList<Object> normalizedRow = new ArrayList<>();
-                    for (Object cell : row) {
-                        try {
-                            normalizedRow.add((Double) cell);
-                        } catch (ClassCastException ex) {
-                            normalizedRow.add((String) cell);
-                        }
-                    }
-                    normalizedData.add(normalizedRow);
+
+    public DataFrame(ArrayList<Object> columnHeaders, ArrayList<ArrayList<Object>> tableData) {
+        ArrayList<String> columns = new ArrayList<>();
+        ArrayList<ArrayList<Object>> normalizedData = new ArrayList<>();
+        for (ArrayList<Object> row : tableData) {
+            ArrayList<Object> normalizedRow = new ArrayList<>();
+            for (Object cell : row) {
+                try {
+                    normalizedRow.add((Double) cell);
+                } catch (ClassCastException ex) {
+                    normalizedRow.add((String) cell);
                 }
-                normalizedData = transpose(normalizedData);
-                for (Object column : columnHeaders) columns.add(column.toString());
-                for (int i = 0; i < columns.size(); i++)  {
-                    data.put(columns.get(i), normalizedData.get(i));
-                    System.out.println(columns.get(i) + ":    " + normalizedData.get(i).toString());
-                }
-            //System.out.println(normalizedData);
+            }
+            normalizedData.add(normalizedRow);
         }
+        normalizedData = transpose(normalizedData);
+        for (Object column : columnHeaders) columns.add(column.toString());
+        for (int i = 0; i < columns.size(); i++) {
+            data.put(columns.get(i), normalizedData.get(i));
+            System.out.println(columns.get(i) + ":    " + normalizedData.get(i).toString());
+        }
+        //System.out.println(normalizedData);
+    }
 
     public HashMap<String, ArrayList<Object>> getData() {
         return data;
@@ -37,16 +38,17 @@ public class DataFrame{
     public void setData(HashMap<String, ArrayList<Object>> data) {
         this.data = data;
     }
-    public ArrayList<ArrayList<Object>> transpose (ArrayList<ArrayList<Object>> matrixIn){
+
+    public ArrayList<ArrayList<Object>> transpose(ArrayList<ArrayList<Object>> matrixIn) {
         ArrayList<ArrayList<Object>> matrixOut = new ArrayList<>();
         int rowCount = matrixIn.size();
         int colCount = 0;
 
 
-        for(int i = 0; i < rowCount; i++){
+        for (int i = 0; i < rowCount; i++) {
             ArrayList<Object> row = matrixIn.get(i);
             int rowSize = row.size();
-            if(rowSize > colCount){
+            if (rowSize > colCount) {
                 colCount = rowSize;
             }
         }
@@ -83,10 +85,10 @@ public class DataFrame{
     }
 
     public void sortDataByKey (String key){
-            Collections.sort((ArrayList)data.get(key));
+        Collections.sort((ArrayList) data.get(key));
     }
 
     public void sortAllData (){
-            for (String key : data.keySet()) sortDataByKey(key);
+        for (String key : data.keySet()) sortDataByKey(key);
     }
 }

@@ -3,7 +3,6 @@ package tools;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class ImageConverter {
