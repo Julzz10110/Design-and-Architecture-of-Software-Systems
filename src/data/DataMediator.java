@@ -24,7 +24,7 @@ public class DataMediator {
         this.mainFrame = mainFrame;
     }
 
-    public void formDataframe(ArrayList<Object> columnHeaders, ArrayList<ArrayList<Object>> tableData) {
+    public void formDataFrame(ArrayList<Object> columnHeaders, ArrayList<ArrayList<Object>> tableData) {
         dataFrame = new DataFrame(columnHeaders, tableData);
     }
 
