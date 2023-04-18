@@ -26,7 +26,7 @@ public class DataFrame {
         for (Object column : columnHeaders) columns.add(column.toString());
         for (int i = 0; i < columns.size(); i++) {
             data.put(columns.get(i), normalizedData.get(i));
-            System.out.println(columns.get(i) + ":    " + normalizedData.get(i).toString());
+            //System.out.println(columns.get(i) + ":    " + normalizedData.get(i).toString());
         }
         //System.out.println(normalizedData);
     }

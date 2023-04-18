@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class MainFrame extends JFrame{
     public static final int MAIN_FRAME_WIDTH = 1600;
@@ -32,15 +31,15 @@ public class MainFrame extends JFrame{
     private JPanel dataPanel;
     private JPanel tablePanel;
     private JPanel chartPanel;
+
+    private static JPanel canvasPanel;
+    private static Chart chart = new BarChart("");
     private JTable inputTable = new JTable();
     private JTable statTable = new JTable();
 
     private ChartSnapshotManager snapshotManager = new ChartSnapshotManager();
 
     private JLabel savingDirectoryPathLabel;
-    private ChartSettingsFrame chartSettingsFrame;
-
-    private DataMediator mediator;
 
     public MainFrame() {
         create();
@@ -84,9 +83,11 @@ public class MainFrame extends JFrame{
         values[2] = -4;
         names[2] = "Item 3";
 
-        Chart chart = new BarChart(values, names, "Название");
-
-        chartPanel.add(chart, BorderLayout.CENTER);
+        canvasPanel = new JPanel();
+        canvasPanel.add(chart.getChartPanel());
+        chartPanel.add(canvasPanel, BorderLayout.CENTER);
+        //chartPanel.setSize(chartPanel.getWidth(), chartPanel.getHeight());
+        chartPanel.validate();
 
         JButton buildChartButton = new JButton("Построить график");
         buildChartButton.setBackground(new Color(0x7C7CE3));
@@ -103,7 +104,7 @@ public class MainFrame extends JFrame{
         snapshotButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    snapshotManager.getSaveSnapshot(chart, snapshotManager.getSnapshotsPath() + "/" + LocalDateTime.now());
+                    snapshotManager.getSaveSnapshot(chart.getChartPanel(), snapshotManager.getSnapshotsPath() + "/" + LocalDateTime.now());
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
                 }
@@ -112,11 +113,109 @@ public class MainFrame extends JFrame{
 
         buildChartButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                chartSettingsFrame = new ChartSettingsFrame(mediator.sendDataFrame());
+                ChartSettingsFrame chartSettingsFrame = new ProxyChartSettingsFrame(mediator.sendDataFrame());
+                chartSettingsFrame.displayFrame();
             }
         });
 
     }
+
+    public static JPanel getCanvasPanel() {
+        return canvasPanel;
+    }
+
+    private DataMediator mediator;
+
+    public static Chart getChart() {
+        return chart;
+    }
+
+    public static void setChart(Chart chart) {
+        MainFrame.chart = chart;
+    }
+
+
+    private JMenu createSettingsMenu()
+    {
+
+        JMenu settings = new JMenu("Настройки");
+        Image image = null;
+        try {
+            image = ImageIO.read(getClass().getResource("/res/roller.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JMenuItem display = new JMenuItem("Настроить внешний вид",
+                new ImageIcon(image.getScaledInstance(ICON_WIDTH, ICON_HEIGHT, Image.SCALE_DEFAULT)));
+
+        try {
+            image = ImageIO.read(getClass().getResource("/res/save.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JMenuItem settingShapshotPath = new JMenuItem("Выбрать папку для графиков",
+                new ImageIcon(image.getScaledInstance(ICON_WIDTH, ICON_HEIGHT, Image.SCALE_DEFAULT)));
+
+        settings.add(display);
+        settings.addSeparator();
+        settings.add(settingShapshotPath);
+
+        settingShapshotPath.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                JFrame shapshotPathFrame = new JFrame();
+                int frameWidth = (int)(0.5 * MAIN_FRAME_WIDTH);
+                int frameHeight = (int)(0.2 * MAIN_FRAME_HEIGHT);
+                shapshotPathFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                shapshotPathFrame.setTitle("Выбор директории для сохранения графиков");
+                shapshotPathFrame.setSize((int)(0.5 * MAIN_FRAME_WIDTH), (int)(0.2 * MAIN_FRAME_HEIGHT));
+                shapshotPathFrame.setLocationRelativeTo(null);
+                shapshotPathFrame.setResizable(true);
+                shapshotPathFrame.setVisible(true);
+                shapshotPathFrame.setLayout(new FlowLayout());
+
+                TextField directoryPathField = new TextField();
+                directoryPathField.setPreferredSize(new Dimension((int)(0.7 * frameWidth), (int)(0.2 * frameHeight)));
+                shapshotPathFrame.add(directoryPathField);
+
+                JButton setDirectoryButton = new JButton("Открыть");
+                setDirectoryButton.setBackground(new Color(0x7C7CE3));
+                shapshotPathFrame.add(setDirectoryButton);
+
+                JButton okButton = new JButton("Ок");
+                okButton.setBackground(new Color(0xD9CFCF));
+                shapshotPathFrame.add(okButton);
+
+                final String[] directoryPath = new String[1];
+                setDirectoryButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        JFileChooser fileChooser = new JFileChooser();
+                        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        int option = fileChooser.showOpenDialog(frame);
+                        if (option == JFileChooser.APPROVE_OPTION) {
+                            directoryPath[0] = fileChooser.getSelectedFile().getPath();
+                            directoryPathField.setText(directoryPath[0]);
+                            if (directoryPath[0] == null) directoryPathField.setText(ChartSnapshotManager.DEFAULT_SNAPSHOTS_PATH);
+                        }
+                    }
+                });
+
+                okButton.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        snapshotManager.setSnapshotsPath(directoryPath[0]);
+                        if (directoryPath[0] == null) snapshotManager.setSnapshotsPath(ChartSnapshotManager.DEFAULT_SNAPSHOTS_PATH);
+                        System.out.println("Директория для сохранения графиков: " + snapshotManager.getSnapshotsPath());
+                        savingDirectoryPathLabel.setText("Путь до директории сохранения графиков: " + snapshotManager.getSnapshotsPath());
+                        shapshotPathFrame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+
+                    }
+                });
+            }
+        });
+        return settings;
+    }
+
     private JMenu createFileMenu() {
         // Создание выпадающего меню
         JMenu file = new JMenu("Файл");
@@ -194,7 +293,7 @@ public class MainFrame extends JFrame{
                         columnStatData[6] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.5));
                         columnStatData[7] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.75));
                         statData.add(columnStatData);
-                        System.out.println(Arrays.toString(columnStatData));
+                        //System.out.println(Arrays.toString(columnStatData));
                     }
 
                     String[] rowStatData = new String[statFunctions.length];
@@ -312,87 +411,6 @@ public class MainFrame extends JFrame{
         return file;
     }
 
-
-    private JMenu createSettingsMenu()
-    {
-
-        JMenu settings = new JMenu("Настройки");
-        Image image = null;
-        try {
-            image = ImageIO.read(getClass().getResource("/res/roller.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JMenuItem display = new JMenuItem("Настроить внешний вид",
-                new ImageIcon(image.getScaledInstance(ICON_WIDTH, ICON_HEIGHT, Image.SCALE_DEFAULT)));
-
-        try {
-            image = ImageIO.read(getClass().getResource("/res/save.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JMenuItem settingShapshotPath = new JMenuItem("Выбрать папку для графиков",
-                new ImageIcon(image.getScaledInstance(ICON_WIDTH, ICON_HEIGHT, Image.SCALE_DEFAULT)));
-
-        settings.add(display);
-        settings.addSeparator();
-        settings.add(settingShapshotPath);
-
-        settingShapshotPath.addActionListener(new ActionListener()
-        {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                JFrame shapshotPathFrame = new JFrame();
-                int frameWidth = (int)(0.5 * MAIN_FRAME_WIDTH);
-                int frameHeight = (int)(0.2 * MAIN_FRAME_HEIGHT);
-                shapshotPathFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                shapshotPathFrame.setTitle("Выбор директории для сохранения графиков");
-                shapshotPathFrame.setSize((int)(0.5 * MAIN_FRAME_WIDTH), (int)(0.2 * MAIN_FRAME_HEIGHT));
-                shapshotPathFrame.setLocationRelativeTo(null);
-                shapshotPathFrame.setResizable(true);
-                shapshotPathFrame.setVisible(true);
-                shapshotPathFrame.setLayout(new FlowLayout());
-
-                TextField directoryPathField = new TextField();
-                directoryPathField.setPreferredSize(new Dimension((int)(0.7 * frameWidth), (int)(0.2 * frameHeight)));
-                shapshotPathFrame.add(directoryPathField);
-
-                JButton setDirectoryButton = new JButton("Открыть");
-                setDirectoryButton.setBackground(new Color(0x7C7CE3));
-                shapshotPathFrame.add(setDirectoryButton);
-
-                JButton okButton = new JButton("Ок");
-                okButton.setBackground(new Color(0xD9CFCF));
-                shapshotPathFrame.add(okButton);
-
-                final String[] directoryPath = new String[1];
-                setDirectoryButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        JFileChooser fileChooser = new JFileChooser();
-                        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                        int option = fileChooser.showOpenDialog(frame);
-                        if (option == JFileChooser.APPROVE_OPTION) {
-                            directoryPath[0] = fileChooser.getSelectedFile().getPath();
-                            directoryPathField.setText(directoryPath[0]);
-                            if (directoryPath[0] == null) directoryPathField.setText(ChartSnapshotManager.DEFAULT_SNAPSHOTS_PATH);
-                        }
-                    }
-                });
-
-                okButton.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        snapshotManager.setSnapshotsPath(directoryPath[0]);
-                        if (directoryPath[0] == null) snapshotManager.setSnapshotsPath(ChartSnapshotManager.DEFAULT_SNAPSHOTS_PATH);
-                        System.out.println("Директория для сохранения графиков: " + snapshotManager.getSnapshotsPath());
-                        savingDirectoryPathLabel.setText("Путь до директории сохранения графиков: " + snapshotManager.getSnapshotsPath());
-                        shapshotPathFrame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-
-                    }
-                });
-            }
-        });
-        return settings;
-    }
 
     public void create() {
         frame = new JFrame();
