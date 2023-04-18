@@ -1,39 +1,31 @@
 package charts;
 
-
 import data.DataFrame;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
 
 import java.awt.*;
 
-public class BarChart extends Chart {
-    private DefaultCategoryDataset barChartData;
-    private JFreeChart barChart;
-    private CategoryPlot barCategoryPlot;
-    private String xLabel = "";
-    private String yLabel = "";
+public class PieChart extends Chart {
+    protected DefaultPieDataset pieChartData;
+    protected JFreeChart pieChart;
 
-    public BarChart(String title) {
+    public PieChart(String title) {
         super(title);
-        barChartData = new DefaultCategoryDataset();
-        barChart = ChartFactory.createBarChart(title, xLabel, yLabel, barChartData, PlotOrientation.VERTICAL, false, true, false);
-        barCategoryPlot = barChart.getCategoryPlot();
-        barCategoryPlot.setRangeGridlinePaint(gridColor);
+        pieChartData = new DefaultPieDataset();
+        pieChart = ChartFactory.createPieChart(title, pieChartData, true, true, false);
 
     }
 
     public void addValue(Double value, String itemName) {
-        barChartData.setValue(value.doubleValue(), yLabel, itemName);
+        pieChartData.setValue(itemName, value.doubleValue());
     }
 
     @Override
     public ChartPanel getChartPanel() {
-        chartPanel = new ChartPanel(barChart);
+        chartPanel = new ChartPanel(pieChart);
         chartPanel.setSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
         chartPanel.setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
         chartPanel.getPopupMenu().remove(3);
