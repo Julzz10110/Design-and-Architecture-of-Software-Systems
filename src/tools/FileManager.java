@@ -114,20 +114,27 @@ public class FileManager {
                     switch (cell.getCellType())
                     {
                         case Cell.CELL_TYPE_STRING:
-                            System.out.print(cell.getStringCellValue() + "\t\t\t");
+                            //System.out.print(cell.getStringCellValue() + "\t\t\t");
                             if (columnsIterating) columnHeaders.add(cell.getStringCellValue().trim());
                             else tableDataRow.add(cell.getStringCellValue().trim());
                             break;
                         case Cell.CELL_TYPE_NUMERIC:
-                            System.out.print(cell.getNumericCellValue() + "\t\t\t");
+                            //System.out.print(cell.getNumericCellValue() + "\t\t\t");
                             if (columnsIterating) columnHeaders.add(cell.getNumericCellValue());
                             else tableDataRow.add(cell.getNumericCellValue());
                             break;
                         default:
                     }
                 }
-                System.out.println("");
-                tableData.add(tableDataRow);
+                boolean isEmptyRow = true;
+                for (Object cell : tableDataRow) {
+                    if (!cell.toString().equals("")) {
+                        isEmptyRow = false;
+                        break;
+                    }
+                }
+                if (!isEmptyRow) tableData.add(tableDataRow);
+                //System.out.println("");
                 columnsIterating = false;
                 ((Workbook) wb).close();
                 fis.close();
@@ -135,7 +142,7 @@ public class FileManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(columnHeaders.toArray()[1] + " " + tableData.toArray()[0]);
+        //System.out.println(columnHeaders.toArray()[1] + " " + tableData.toArray()[0]);
 
         mediator.formDataFrame(columnHeaders, tableData);
         mediator.formTableModel(columnHeaders, tableData);

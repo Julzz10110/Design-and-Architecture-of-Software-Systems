@@ -1,10 +1,11 @@
 package tools;
 
-import charts.Chart;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtils;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 
 public class ChartSnapshotManager {
@@ -21,18 +22,13 @@ public class ChartSnapshotManager {
         this.snapshotsPath = snapshotsPath;
     }
 
-    public BufferedImage getScreenShot(Chart chart) {
-
-        BufferedImage image = new BufferedImage(chart.getWidth(), chart.getHeight(), BufferedImage.TYPE_INT_RGB);
-        // paints into image's Graphics
-        chart.paint(image.getGraphics());
-        return image;
-    }
-
-    public void getSaveSnapshot(Chart chart, String fileName) throws Exception {
-        BufferedImage img = getScreenShot(chart);
-        // write the captured image as a PNG
-        ImageIO.write(img, "png", new File(fileName + ".png"));
+    public void getSaveSnapshot(ChartPanel chartPanel, String fileName) throws Exception {
+        try {
+            OutputStream out = new FileOutputStream(fileName + ".png");
+            ChartUtils.writeChartAsPNG(out, chartPanel.getChart(), chartPanel.getWidth(), chartPanel.getHeight());
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
 }
