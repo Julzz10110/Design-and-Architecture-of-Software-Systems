@@ -2,9 +2,8 @@ package tools.files;
 
 public class ImageFileFactory implements FileAbstractFactory {
 
-
     @Override
-    public FullPermissionFile createFullPermissionFile(String fileName) {
+    public FullPermissionsFile createFullPermissionFile(String fileName) {
         System.out.println(ImageFileFactory.class.getName() + " : Файл " + fileName + " создан со всеми правами.");
         return new FullPermissionsImageFile();
     }

@@ -3,7 +3,7 @@ package tools.files;
 public class TableFileFactory implements FileAbstractFactory {
 
     @Override
-    public FullPermissionFile createFullPermissionFile(String fileName) {
+    public FullPermissionsFile createFullPermissionFile(String fileName) {
         System.out.println(TableFileFactory.class.getName() + " : Файл " + fileName + " создан со всеми правами.");
         return new FullPermissionsTableFile();
     }

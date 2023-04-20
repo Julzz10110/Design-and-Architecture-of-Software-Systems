@@ -1,4 +1,4 @@
 package tools.files;
 
-public class FullPermissionsTableFile extends FullPermissionFile {
+public class FullPermissionsTableFile extends FullPermissionsFile {
 }

@@ -1,4 +1,4 @@
 package tools.files;
 
-public class FullPermissionsImageFile extends FullPermissionFile {
+public class FullPermissionsImageFile extends FullPermissionsFile {
 }

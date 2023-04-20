@@ -3,7 +3,7 @@ package core;
 import charts.BarChart;
 import charts.Chart;
 import data.DataMediator;
-import data.StatUtils;
+import data.strategy.*;
 import tools.ChartSnapshotManager;
 import tools.FileManager;
 import tools.ImageConverter;
@@ -284,15 +284,31 @@ public class MainFrame extends JFrame{
                     statData.add(statFunctions);
                     for (String key : mediator.sendDataFrame().getData().keySet()) {
                         String[] columnStatData = new String[statFunctions.length];
-                        columnStatData[0] = String.valueOf(StatUtils.count(mediator.sendDataFrame(), key));
-                        columnStatData[1] = String.valueOf(StatUtils.mean(mediator.sendDataFrame(), key));
-                        columnStatData[2] = String.valueOf(StatUtils.std(mediator.sendDataFrame(), key));
-                        columnStatData[3] = String.valueOf(StatUtils.min(mediator.sendDataFrame(), key));
-                        columnStatData[4] = String.valueOf(StatUtils.max(mediator.sendDataFrame(), key));
-                        columnStatData[5] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.25));
-                        columnStatData[6] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.5));
-                        columnStatData[7] = String.valueOf(StatUtils.percentile(mediator.sendDataFrame(), key, 0.75));
+
+                        StatCalculationContext context = new StatCalculationContext();
+
+                        context.setStrategy(new ConcreteStrategyCount());
+                        columnStatData[0] = context.executeStrategy(mediator.sendDataFrame(), key).toString();
+
+                        context.setStrategy(new ConcreteStrategyMean());
+                        columnStatData[1] = context.executeStrategy(mediator.sendDataFrame(), key).toString();
+
+                        context.setStrategy(new ConcreteStrategyStd());
+                        columnStatData[2] = context.executeStrategy(mediator.sendDataFrame(), key).toString();
+
+                        context.setStrategy(new ConcreteStrategyMin());
+                        columnStatData[3] = context.executeStrategy(mediator.sendDataFrame(), key).toString();
+
+                        context.setStrategy(new ConcreteStrategyMax());
+                        columnStatData[4] = context.executeStrategy(mediator.sendDataFrame(), key).toString();
+
+                        context.setStrategy(new ConcreteStrategyPercentile());
+                        columnStatData[5] = context.executeStrategy(mediator.sendDataFrame(), key, 0.25).toString();
+                        columnStatData[6] = context.executeStrategy(mediator.sendDataFrame(), key, 0.5).toString();
+                        columnStatData[7] = context.executeStrategy(mediator.sendDataFrame(), key, 0.75).toString();
+
                         statData.add(columnStatData);
+
                         //System.out.println(Arrays.toString(columnStatData));
                     }
 

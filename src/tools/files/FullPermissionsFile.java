@@ -10,7 +10,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
 
-class FullPermissionFile implements AbstractFile {
+class FullPermissionsFile implements AbstractFile {
     @Override
     public File createWithPermissions(String pathName) {
         File file = null;
