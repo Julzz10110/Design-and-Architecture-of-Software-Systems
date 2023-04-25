@@ -2,6 +2,8 @@ package charts;
 
 import data.DataFrame;
 
+import java.util.ArrayList;
+
 import static charts.Chart.ChartType.*;
 
 
@@ -38,7 +40,14 @@ class PieChart3DCreator extends Creator {
 }
 
 public class ChartFactory {
+    private static ArrayList<Object> chartConfiguration = new ArrayList<>();
     public static Chart createChart(int chartType, String title, DataFrame data, String xLabel, String yLabel) {
+        chartConfiguration.add(chartType);
+        chartConfiguration.add(title);
+        chartConfiguration.add(data);
+        chartConfiguration.add(xLabel);
+        chartConfiguration.add(yLabel);
+
         assert data != null;
         Creator chartCreator = switch (chartType) {
             case BAR_CHART -> new BarChartCreator();
@@ -54,5 +63,13 @@ public class ChartFactory {
         System.out.println(ChartFactory.class.getName() + " : Построен график типа " + createdChart.getClass().getName() + " c помощью класса-создателя " + chartCreator.getClass().getName() + '.');
 
         return createdChart;
+    }
+
+    public static ArrayList<Object> getChartConfiguration() {
+        return chartConfiguration;
+    }
+
+    public static void clearChartConfiguration() {
+        chartConfiguration = new ArrayList<>();
     }
 }

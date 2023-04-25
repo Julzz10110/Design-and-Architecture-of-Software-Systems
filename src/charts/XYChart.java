@@ -6,6 +6,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -26,6 +27,10 @@ public class XYChart extends Chart {
         xyChart = ChartFactory.createXYLineChart(title, xLabel, yLabel, xyChartData, PlotOrientation.VERTICAL, true, true, false);
         xyPlot = xyChart.getXYPlot();
         xyPlot.setRangeGridlinePaint(gridColor);
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesStroke(0, new BasicStroke(4.0f));
+        xyPlot.setRenderer(renderer);
     }
 
 
@@ -51,7 +56,7 @@ public class XYChart extends Chart {
         xyPlot.getDomainAxis().setLabel(xLabel);
         xyPlot.getRangeAxis().setLabel(yLabel);
         createSeries(yLabel);
-        for (int i = 0; i < data.getData().get(xLabel).size() - 1; i++) {
+        for (int i = 0; i < data.getData().get(xLabel).size(); i++) {
             addValue(yLabel, (Double) data.getData().get(xLabel).get(i), (Double) data.getData().get(yLabel).get(i));
 
         }

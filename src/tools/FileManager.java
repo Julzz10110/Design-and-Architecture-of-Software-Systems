@@ -73,7 +73,6 @@ public class FileManager {
         }
         mediator.formDataFrame(columnHeaders, tableData);
         mediator.formTableModel(columnHeaders, tableData);
-
     }
 
     public void loadDataExcel(String pathName) {

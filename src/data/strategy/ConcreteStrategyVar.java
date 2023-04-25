@@ -6,7 +6,7 @@ public class ConcreteStrategyVar implements Strategy {
 
     @Override
     public Double execute(DataFrame df, String key, Object... others) {
-        System.out.println("Вызван метод execute() из ConcreteStrategyVar...");
+        //System.out.println("Вызван метод execute() из ConcreteStrategyVar...");
         if (df.getData().get(key).size() == 0) return Double.NaN;
         try {
             double avg = (new data.strategy.ConcreteStrategyMean()).execute(df, key);

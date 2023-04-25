@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public class DataFrame {
-
-    private HashMap<String, ArrayList<Object>> data = new HashMap<>();
+public class DataFrame implements Cloneable {
+    private ArrayList<Object> columnHeaders;
+    private ArrayList<ArrayList<Object>> tableData;
 
     public DataFrame(ArrayList<Object> columnHeaders, ArrayList<ArrayList<Object>> tableData) {
+        this.columnHeaders = columnHeaders;
+        this.tableData = tableData;
         ArrayList<String> columns = new ArrayList<>();
         ArrayList<ArrayList<Object>> normalizedData = new ArrayList<>();
         for (ArrayList<Object> row : tableData) {
@@ -29,6 +31,18 @@ public class DataFrame {
             //System.out.println(columns.get(i) + ":    " + normalizedData.get(i).toString());
         }
         //System.out.println(normalizedData);
+    }
+    public DataFrame(HashMap<String, ArrayList<Object>> data) {
+        this.data = data;
+    }
+    private HashMap<String, ArrayList<Object>> data = new HashMap<>();
+
+    public ArrayList<Object> getColumnHeaders() {
+        return columnHeaders;
+    }
+
+    public ArrayList<ArrayList<Object>> getTableData() {
+        return tableData;
     }
 
     public HashMap<String, ArrayList<Object>> getData() {
@@ -84,12 +98,38 @@ public class DataFrame {
         return matrixOut;
     }
 
-    public void sortDataByKey (String key){
+    public void sortDataByKey(String key) {
         Collections.sort((ArrayList) data.get(key));
     }
 
-    public void sortAllData (){
+    public void sortAllData() {
         for (String key : data.keySet()) sortDataByKey(key);
+    }
+
+    public void setValue(String key, int pos, Object value) {
+        try {
+            data.get(key).set(pos, Double.valueOf(value.toString()));
+        } catch (NumberFormatException ex) {
+            data.get(key).set(pos, (String) value);
+        }
+        //System.out.println("TEST: " + data.get(key).get(pos).getClass());
+    }
+
+    public DataFrame clone() {
+        DataFrame clone = new DataFrame(data);
+        return clone;
+    }
+
+    public void printData() {
+        for (String key : data.keySet()) {
+            System.out.print(key + " : ");
+            for (Object el : data.get(key)) {
+                System.out.print(el.toString() + " ");
+            }
+            System.out.print('\n');
+        }
+
+
     }
 
 }

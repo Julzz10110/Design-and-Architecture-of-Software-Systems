@@ -6,7 +6,7 @@ public class ConcreteStrategySum implements Strategy {
 
     @Override
     public Double execute(DataFrame df, String key, Object... others) {
-        System.out.println("Вызван метод execute() из ConcreteStrategySum...");
+        //System.out.println("Вызван метод execute() из ConcreteStrategySum...");
         if (df.getData().get(key).size() == 0) return Double.NaN;
         double sum = 0;
         for (Object obj : df.getData().get(key)) {

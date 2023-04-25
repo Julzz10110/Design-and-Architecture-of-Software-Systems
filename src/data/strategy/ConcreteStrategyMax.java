@@ -6,7 +6,7 @@ public class ConcreteStrategyMax implements Strategy {
 
     @Override
     public Double execute(DataFrame df, String key, Object... others) {
-        System.out.println("Вызван метод execute() из ConcreteStrategyMax...");
+        //System.out.println("Вызван метод execute() из ConcreteStrategyMax...");
         if (df.getData().get(key).size() == 0) return Double.NaN;
         double max = Double.MIN_VALUE;
         try {

@@ -9,7 +9,7 @@ public class ConcreteStrategyPercentile implements Strategy {
 
     @Override
     public Double execute(DataFrame df, String key, Object... others) {
-        System.out.println("Вызван метод execute() из ConcreteStrategyPercentile...");
+        //System.out.println("Вызван метод execute() из ConcreteStrategyPercentile...");
         int count;
         double percent = (Double) others[0];
         ArrayList<Object> data = df.getData().get(key);

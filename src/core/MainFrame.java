@@ -2,6 +2,10 @@ package core;
 
 import charts.BarChart;
 import charts.Chart;
+import core.state.ChangedState;
+import core.state.OriginalState;
+import core.state.ResetState;
+import core.state.StateContext;
 import data.DataMediator;
 import data.strategy.*;
 import tools.ChartSnapshotManager;
@@ -34,12 +38,10 @@ public class MainFrame extends JFrame{
 
     private static JPanel canvasPanel;
     private static Chart chart = new BarChart("");
-    private JTable inputTable = new JTable();
+    private static JTable inputTable;
+    private static StateContext tableModelContext;
+
     private JTable statTable = new JTable();
-
-    private ChartSnapshotManager snapshotManager = new ChartSnapshotManager();
-
-    private JLabel savingDirectoryPathLabel;
 
     public MainFrame() {
         create();
@@ -48,12 +50,27 @@ public class MainFrame extends JFrame{
         setLayout(mainLayout);
         dataPanel = new JPanel();
         loadedDataLabel = new JLabel("Загруженные данные: ");
+        JPanel buttonsPanel = new JPanel();
+        FlowLayout buttonsLayout = new FlowLayout();
+        buttonsPanel.setLayout(buttonsLayout);
+        JButton commitChangesButton = new JButton("Принять изменения");
+        JButton resetChangesButton = new JButton("Отменить изменения");
+        buttonsPanel.add(commitChangesButton);
+        buttonsPanel.add(resetChangesButton);
+        dataPanel.add(buttonsPanel);
         dataPanel.add(loadedDataLabel);
         contents = new Box(BoxLayout.Y_AXIS);
+
+        tableModelContext = new StateContext();
+
+        inputTable = new JTable();
+
+        //tableModelContext.setState(new ResetState());
         contents.add(new JScrollPane(inputTable));
         tablePanel = new JPanel();
         tablePanel.add(contents);
         dataPanel.add(tablePanel);
+        dataPanel.add(buttonsPanel);
         tablePanel.repaint();
         tablePanel.revalidate();
 
@@ -66,22 +83,10 @@ public class MainFrame extends JFrame{
         add(dataPanel);
         add(chartPanel);
 
+
         mediator = DataMediator.getInstance();
         mediator.setMainFrame(this);
         mediator.setFileManager(FileManager.getInstance());
-
-
-        // тестовая прорисовка
-        double[] values = new double[3];
-        String[] names = new String[3];
-        values[0] = 1;
-        names[0] = "Item 1";
-
-        values[1] = 2;
-        names[1] = "Item 2";
-
-        values[2] = -4;
-        names[2] = "Item 3";
 
         canvasPanel = new JPanel();
         canvasPanel.add(chart.getChartPanel());
@@ -100,6 +105,23 @@ public class MainFrame extends JFrame{
         savingDirectoryPathLabel = new JLabel();
         savingDirectoryPathLabel.setText("Путь до директории сохранения графиков: " + snapshotManager.getSnapshotsPath());
         chartPanel.add(savingDirectoryPathLabel);
+
+
+        commitChangesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tableModelContext.setState(new ChangedState());
+                tableModelContext.updateDataFrame();
+            }
+        });
+
+
+        resetChangesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tableModelContext.setState(new ResetState());
+                tableModelContext.updateDataFrame();
+            }
+        });
+
 
         snapshotButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -120,9 +142,22 @@ public class MainFrame extends JFrame{
 
     }
 
+    public static JTable getInputTable() {
+        return inputTable;
+    }
+
+    private ChartSnapshotManager snapshotManager = new ChartSnapshotManager();
+
+    private JLabel savingDirectoryPathLabel;
+
+    public static StateContext getTableModelContext() {
+        return tableModelContext;
+    }
+
     public static JPanel getCanvasPanel() {
         return canvasPanel;
     }
+
 
     private DataMediator mediator;
 
@@ -255,16 +290,42 @@ public class MainFrame extends JFrame{
                     File file = fileChooser.getSelectedFile();
                     int dotIndex = file.getAbsolutePath().lastIndexOf('.');
                     String extension = (dotIndex == -1) ? "" : file.getAbsolutePath().substring(dotIndex + 1);
-                    if (extension.equals("xlsx") || extension.equals("xls"))  {
+                    if (extension.equals("xlsx") || extension.equals("xls")) {
                         mediator.getFileManager().loadDataExcel(file.getPath());
+                        tableModelContext.setState(new OriginalState());
+                        tableModelContext.updateDataFrame();
                     } else if (extension.equals("csv")) {
                         mediator.getFileManager().loadDataCSV(file.getPath());
+                        tableModelContext.setState(new OriginalState());
+                        tableModelContext.updateDataFrame();
                     } else {
                         System.out.println("ОШИБКА: Невозможно открыть файл");
                         return;
                     }
                     DefaultTableModel inputTableModel = mediator.sendTabelModel();
+                    //tableModelContext.setState(new ResetState());
                     inputTable.setModel(inputTableModel);
+
+                    Action action = new AbstractAction() {
+                        public void actionPerformed(ActionEvent e) {
+                            TableCellListener tcl = (TableCellListener) e.getSource();
+                            //System.out.println("Row   : " + tcl.getRow());
+                            //System.out.println("Column: " + tcl.getColumn());
+                            //System.out.println("Old   : " + tcl.getOldValue());
+                            //System.out.println("New   : " + tcl.getNewValue());
+                            ArrayList<Object> change = new ArrayList<>();
+                            change.add(inputTable.getColumnName(tcl.getColumn()));
+                            change.add(tcl.getColumn());
+                            change.add(tcl.getRow());
+                            change.add(tcl.getOldValue());
+                            change.add(tcl.getNewValue());
+                            //System.out.println(Arrays.toString(change.toArray()));
+                            mediator.getInputTableChanges().add(change);
+                            //tableModelContext.setState(new ChangedState());
+                        }
+                    };
+                    TableCellListener tcl = new TableCellListener(inputTable, action);
+
                     contents = new Box(BoxLayout.Y_AXIS);
                     contents.add(new JScrollPane(inputTable));
                     tablePanel.add(contents);

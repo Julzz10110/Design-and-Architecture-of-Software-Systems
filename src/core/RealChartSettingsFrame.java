@@ -132,6 +132,7 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
 
         okButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                ChartFactory.clearChartConfiguration();
                 chart = ChartFactory.createChart(
                         group.getSelection().getMnemonic(),
                         titleTextField.getText(),
