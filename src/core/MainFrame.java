@@ -37,8 +37,6 @@ public class MainFrame extends JFrame{
     private JPanel dataPanel;
     private JPanel tablePanel;
     private JPanel chartPanel;
-    private static Chart chart = new BarChart("", false);
-    private static ResourceBundle rb;
     private JButton commitChangesButton;
     private JButton resetChangesButton;
     private JButton buildChartButton;
@@ -50,6 +48,8 @@ public class MainFrame extends JFrame{
     private JButton setDirectoryButton;
     private JMenu file;
     private JMenuItem open;
+    private static Chart chart = new BarChart("", false);
+    private static ResourceBundle rb;
 
     private static JPanel canvasPanel;
     private JMenuItem convert;
@@ -60,10 +60,10 @@ public class MainFrame extends JFrame{
     private JTable statTable = new JTable();
 
     public MainFrame() {
-        Locale locale = Locale.getDefault();
+        Locale locale = new Locale("ru", "RU");
         rb = ResourceBundle.getBundle("core/i18n/Resources", locale);
-
         create();
+        translateFileChooserText();
         Container contentPane = this.getContentPane();
         GridLayout mainLayout = new GridLayout(0, 2);
         setLayout(mainLayout);
@@ -188,9 +188,6 @@ public class MainFrame extends JFrame{
         MainFrame.chart = chart;
     }
 
-    public static ResourceBundle getResourceBundle() {
-        return rb;
-    }
 
     private JMenu createSettingsMenu()
     {
@@ -511,6 +508,7 @@ public class MainFrame extends JFrame{
         return file;
     }
 
+
     private JMenu createLanguageMenu() {
 
         language = new JMenu(rb.getString("language"));
@@ -609,6 +607,10 @@ public class MainFrame extends JFrame{
         return language;
     }
 
+    public static ResourceBundle getResourceBundle() {
+        return rb;
+    }
+
     private void updateLanguage() {
         setTitle(rb.getString("program_name"));
         loadedDataLabel.setText(rb.getString("downloaded_data"));
@@ -625,7 +627,9 @@ public class MainFrame extends JFrame{
         open.setText(rb.getString("open"));
         convert.setText(rb.getString("convert_image"));
         language.setText(rb.getString("language"));
+        translateFileChooserText();
     }
+
 
     public void create() {
         frame = new JFrame();
@@ -642,6 +646,20 @@ public class MainFrame extends JFrame{
         menuBar.add(Box.createHorizontalGlue());
         menuBar.add(createLanguageMenu());
         this.setJMenuBar(menuBar);
+    }
+
+    private void translateFileChooserText() {
+        UIManager.put("FileChooser.openDialogTitleText", rb.getString("open"));
+        UIManager.put("FileChooser.lookInLabelText", rb.getString("look_in"));
+        UIManager.put("FileChooser.fileNameLabelText", rb.getString("file_name"));
+        UIManager.put("FileChooser.filesOfTypeLabelText", rb.getString("files_of_type"));
+        UIManager.put("FileChooser.openButtonText", rb.getString("open"));
+        UIManager.put("FileChooser.cancelButtonText", rb.getString("cancel"));
+        UIManager.put("FileChooser.acceptAllFileFilterText", rb.getString("all_files"));
+
+        UIManager.put("FileChooser.saveDialogTitleText", rb.getString("save_as"));
+        UIManager.put("FileChooser.saveInLabelText", rb.getString("save_in"));
+        UIManager.put("FileChooser.saveButtonText", rb.getString("save"));
     }
 
 

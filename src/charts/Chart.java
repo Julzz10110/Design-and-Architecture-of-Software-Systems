@@ -13,8 +13,9 @@ public abstract class Chart extends JPanel {
     protected Color gridColor = new Color(0, 0, 0, 200);
     protected String title;
     protected ChartPanel chartPanel;
-    private static boolean legendIncluded;
     protected boolean hasLegend;
+
+    private static boolean legendIncluded;
 
     public Chart(String title, boolean hasLegend) {
         super();
@@ -28,12 +29,12 @@ public abstract class Chart extends JPanel {
         return title;
     }
 
-    public static boolean getLegendIncluded() {
-        return legendIncluded;
-    }
-
     public static void setLegendIncluded(boolean legend) {
         legendIncluded = legend;
+    }
+
+    public static boolean getLegendIncluded() {
+        return legendIncluded;
     }
 
     @Override

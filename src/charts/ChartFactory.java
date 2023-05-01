@@ -41,7 +41,6 @@ class PieChart3DCreator extends Creator {
 
 public class ChartFactory {
     private static ArrayList<Object> chartConfiguration = new ArrayList<>();
-
     public static Chart createChart(int chartType, String title, DataFrame data, String xLabel, String yLabel, boolean hasLegend) {
         chartConfiguration.add(chartType);
         chartConfiguration.add(title);
