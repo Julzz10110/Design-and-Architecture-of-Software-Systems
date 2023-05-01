@@ -11,21 +11,29 @@ public abstract class Chart extends JPanel {
     protected static final int CHART_WIDTH = (int) (0.5 * MainFrame.MAIN_FRAME_WIDTH);
     protected static final int CHART_HEIGHT = (int) (0.8 * MainFrame.MAIN_FRAME_HEIGHT);
     protected Color gridColor = new Color(0, 0, 0, 200);
-
-
     protected String title;
     protected ChartPanel chartPanel;
+    private static boolean legendIncluded;
+    protected boolean hasLegend;
 
-
-    public Chart(String title) {
+    public Chart(String title, boolean hasLegend) {
         super();
         this.title = title;
+        this.hasLegend = hasLegend;
         setPreferredSize(new Dimension(CHART_WIDTH, CHART_HEIGHT));
         setBackground(new Color(0xFFFFFF));
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public static boolean getLegendIncluded() {
+        return legendIncluded;
+    }
+
+    public static void setLegendIncluded(boolean legend) {
+        legendIncluded = legend;
     }
 
     @Override
@@ -41,6 +49,7 @@ public abstract class Chart extends JPanel {
     public abstract void build(DataFrame data, String xLabel, String yLabel);
 
     public abstract ChartPanel getChartPanel();
+
 
     public final class ChartType {
         public static final int XY_CHART = 0;

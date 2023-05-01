@@ -21,10 +21,10 @@ public class XYChart extends Chart {
     private String xLabel = "";
     private String yLabel = "";
 
-    public XYChart(String title) {
-        super(title);
+    public XYChart(String title, boolean hasLegend) {
+        super(title, hasLegend);
         xyChartData = new XYSeriesCollection();
-        xyChart = ChartFactory.createXYLineChart(title, xLabel, yLabel, xyChartData, PlotOrientation.VERTICAL, true, true, false);
+        xyChart = ChartFactory.createXYLineChart(title, xLabel, yLabel, xyChartData, PlotOrientation.VERTICAL, hasLegend, true, false);
         xyPlot = xyChart.getXYPlot();
         xyPlot.setRangeGridlinePaint(gridColor);
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();

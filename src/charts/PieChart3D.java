@@ -8,10 +8,10 @@ import org.jfree.data.general.DefaultPieDataset;
 import java.awt.*;
 
 public class PieChart3D extends PieChart {
-    public PieChart3D(String title) {
-        super(title);
+    public PieChart3D(String title, boolean hasLegend) {
+        super(title, hasLegend);
         pieChartData = new DefaultPieDataset();
-        pieChart = ChartFactory.createPieChart3D(title, pieChartData, true, true, false);
+        pieChart = ChartFactory.createPieChart3D(title, pieChartData, hasLegend, true, false);
     }
 
     @Override

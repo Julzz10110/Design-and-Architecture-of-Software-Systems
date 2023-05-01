@@ -13,7 +13,7 @@ public class FlyweightExample {
     private static int PANEL_HEIGHT = FRAME_HEIGHT;
     private static int PANEL_WIDTH = FRAME_WIDTH - 100;
 
-    private static int PiXELS_DRAWN = 1000;
+    private static int PiXELS_DRAWN = PANEL_HEIGHT * PANEL_WIDTH;
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();

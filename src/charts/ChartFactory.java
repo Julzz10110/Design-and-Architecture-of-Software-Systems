@@ -8,40 +8,41 @@ import static charts.Chart.ChartType.*;
 
 
 abstract class Creator {
-    abstract public Chart factoryMethod(String title);
+    abstract public Chart factoryMethod(String title, boolean hasLegend);
 }
 
 class XYChartCreator extends Creator {
     @Override
-    public Chart factoryMethod(String title) {
-        return new XYChart(title);
+    public Chart factoryMethod(String title, boolean hasLegend) {
+        return new XYChart(title, hasLegend);
     }
 }
 
 class BarChartCreator extends Creator {
     @Override
-    public Chart factoryMethod(String title) {
-        return new BarChart(title);
+    public Chart factoryMethod(String title, boolean hasLegend) {
+        return new BarChart(title, hasLegend);
     }
 }
 
 class PieChartCreator extends Creator {
     @Override
-    public Chart factoryMethod(String title) {
-        return new PieChart(title);
+    public Chart factoryMethod(String title, boolean hasLegend) {
+        return new PieChart(title, hasLegend);
     }
 }
 
 class PieChart3DCreator extends Creator {
     @Override
-    public Chart factoryMethod(String title) {
-        return new PieChart3D(title);
+    public Chart factoryMethod(String title, boolean hasLegend) {
+        return new PieChart3D(title, hasLegend);
     }
 }
 
 public class ChartFactory {
     private static ArrayList<Object> chartConfiguration = new ArrayList<>();
-    public static Chart createChart(int chartType, String title, DataFrame data, String xLabel, String yLabel) {
+
+    public static Chart createChart(int chartType, String title, DataFrame data, String xLabel, String yLabel, boolean hasLegend) {
         chartConfiguration.add(chartType);
         chartConfiguration.add(title);
         chartConfiguration.add(data);
@@ -57,7 +58,7 @@ public class ChartFactory {
             default -> null;
         };
         assert chartCreator != null;
-        Chart createdChart = chartCreator.factoryMethod(title);
+        Chart createdChart = chartCreator.factoryMethod(title, hasLegend);
         createdChart.build(data, xLabel, yLabel);
 
         System.out.println(ChartFactory.class.getName() + " : Построен график типа " + createdChart.getClass().getName() + " c помощью класса-создателя " + chartCreator.getClass().getName() + '.');

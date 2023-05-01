@@ -2,12 +2,15 @@ package core;
 
 import charts.Chart;
 import charts.ChartFactory;
+import charts.XYChart;
 import data.DataFrame;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import static core.MainFrame.getCanvasPanel;
 
@@ -32,16 +35,16 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
     private ScrollPane argumentsScrollPane;
     private ScrollPane valuesScrollPane;
     private JCheckBox legendCheckBox;
-
+    private boolean hasLegend;
     private JButton okButton;
-    private Chart chart;
+    private Chart chart = new XYChart("", false);
 
     private DataFrame dataFrame;
 
 
     public RealChartSettingsFrame(DataFrame dataFrame) {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setTitle("Настройки графика");
+        setTitle(MainFrame.getResourceBundle().getString("chart_settings"));
         setSize(SETTINGS_FRAME_WIDTH, SETTINGS_FRAME_HEIGHT);
 
         this.dataFrame = dataFrame;
@@ -52,23 +55,23 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
 
         add(settingsPanel);
 
-        titleLabel = new JLabel("Введите название графика: ");
+        titleLabel = new JLabel(MainFrame.getResourceBundle().getString("enter_chart_name"));
         titleTextField = new JTextField();
         titleTextField.setPreferredSize(new Dimension((int) (0.6 * SETTINGS_FRAME_WIDTH), (int) (0.1 * SETTINGS_FRAME_HEIGHT)));
-        xyRadioButton = new JRadioButton("График XY");
+        xyRadioButton = new JRadioButton(MainFrame.getResourceBundle().getString("xy_chart"));
         xyRadioButton.setMnemonic(Chart.ChartType.XY_CHART);
-        barRadioButton = new JRadioButton("Столбчатая диаграмма");
+        barRadioButton = new JRadioButton(MainFrame.getResourceBundle().getString("bar_chart"));
         barRadioButton.setMnemonic(Chart.ChartType.BAR_CHART);
-        pieRadioButton = new JRadioButton("Круговая диаграмма");
+        pieRadioButton = new JRadioButton(MainFrame.getResourceBundle().getString("pie_chart"));
         pieRadioButton.setMnemonic(Chart.ChartType.PIE_CHART);
-        pie3DRadioButton = new JRadioButton("Круговая диаграмма 3D");
+        pie3DRadioButton = new JRadioButton(MainFrame.getResourceBundle().getString("pie_chart_3d"));
         pie3DRadioButton.setMnemonic(Chart.ChartType.PIE_CHART_3D);
         group = new ButtonGroup();
         group.add(xyRadioButton);
         group.add(barRadioButton);
         group.add(pieRadioButton);
         group.add(pie3DRadioButton);
-        okButton = new JButton("Ок");
+        okButton = new JButton(MainFrame.getResourceBundle().getString("ok"));
 
         settingsPanel.add(titleLabel);
         settingsPanel.add(titleTextField);
@@ -94,8 +97,8 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
         concretePanel.add(valuesScrollPane);
         settingsPanel.add(concretePanel);
 
-        legendCheckBox = new JCheckBox("Добавить легенду");
-        okButton = new JButton("Ок");
+        legendCheckBox = new JCheckBox(MainFrame.getResourceBundle().getString("add_legend"));
+        okButton = new JButton(MainFrame.getResourceBundle().getString("ok"));
 
         settingsPanel.add(legendCheckBox);
         settingsPanel.add(okButton);
@@ -124,9 +127,10 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
             }
         });
 
-        legendCheckBox.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-
+        legendCheckBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                hasLegend = e.getStateChange() == 1;
+                Chart.setLegendIncluded(e.getStateChange() == 1);
             }
         });
 
@@ -138,7 +142,8 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
                         titleTextField.getText(),
                         dataFrame,
                         argumentsList.getSelectedValue().toString(),
-                        valuesList.getSelectedValue().toString());
+                        valuesList.getSelectedValue().toString(),
+                        hasLegend);
                 MainFrame.setChart(chart);
                 MainFrame.getCanvasPanel().removeAll();
                 MainFrame.getCanvasPanel().add(chart.getChartPanel());
@@ -158,18 +163,18 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
 
 
     private void showXYChartSettings() {
-        argumentsLabel.setText("Значения по оси X:");
-        valuesLabel.setText("Значения по оси Y:");
+        argumentsLabel.setText(MainFrame.getResourceBundle().getString("x_values"));
+        valuesLabel.setText(MainFrame.getResourceBundle().getString("y_values"));
     }
 
     private void showBarChartSettings() {
-        argumentsLabel.setText("Сравниваемые категории:");
-        valuesLabel.setText("Измеряемая величина:");
+        argumentsLabel.setText(MainFrame.getResourceBundle().getString("compared_categories"));
+        valuesLabel.setText(MainFrame.getResourceBundle().getString("target_value"));
     }
 
     private void showPieChartSettings() {
-        argumentsLabel.setText("Сравниваемые категории:");
-        valuesLabel.setText("Измеряемая величина:");
+        argumentsLabel.setText(MainFrame.getResourceBundle().getString("compared_categories"));
+        valuesLabel.setText(MainFrame.getResourceBundle().getString("target_value"));
     }
 
     @Override

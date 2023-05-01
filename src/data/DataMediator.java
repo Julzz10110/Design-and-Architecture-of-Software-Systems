@@ -134,7 +134,7 @@ public class DataMediator {
         if (chartConfiguration.size() > 0) {
             Chart chart = ChartFactory.createChart((Integer) chartConfiguration.get(0), (String) chartConfiguration.get(1),
                     dataFrame,
-                    (String) chartConfiguration.get(3), (String) chartConfiguration.get(4));
+                    (String) chartConfiguration.get(3), (String) chartConfiguration.get(4), Chart.getLegendIncluded());
             MainFrame.setChart(chart);
             MainFrame.getCanvasPanel().removeAll();
             MainFrame.getCanvasPanel().add(chart.getChartPanel());

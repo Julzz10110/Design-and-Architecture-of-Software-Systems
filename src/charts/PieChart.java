@@ -12,10 +12,10 @@ public class PieChart extends Chart {
     protected DefaultPieDataset pieChartData;
     protected JFreeChart pieChart;
 
-    public PieChart(String title) {
-        super(title);
+    public PieChart(String title, boolean hasLegend) {
+        super(title, hasLegend);
         pieChartData = new DefaultPieDataset();
-        pieChart = ChartFactory.createPieChart(title, pieChartData, true, true, false);
+        pieChart = ChartFactory.createPieChart(title, pieChartData, hasLegend, true, false);
 
     }
 

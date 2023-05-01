@@ -18,10 +18,10 @@ public class BarChart extends Chart {
     private String xLabel = "";
     private String yLabel = "";
 
-    public BarChart(String title) {
-        super(title);
+    public BarChart(String title, boolean hasLegend) {
+        super(title, hasLegend);
         barChartData = new DefaultCategoryDataset();
-        barChart = ChartFactory.createBarChart(title, xLabel, yLabel, barChartData, PlotOrientation.VERTICAL, false, true, false);
+        barChart = ChartFactory.createBarChart(title, xLabel, yLabel, barChartData, PlotOrientation.VERTICAL, hasLegend, true, false);
         barCategoryPlot = barChart.getCategoryPlot();
         barCategoryPlot.setRangeGridlinePaint(gridColor);
 
