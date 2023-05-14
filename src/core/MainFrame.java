@@ -2,6 +2,7 @@ package core;
 
 import charts.BarChart;
 import charts.Chart;
+import core.design.GUIDesignerFrame;
 import core.state.ChangedState;
 import core.state.OriginalState;
 import core.state.ResetState;
@@ -23,10 +24,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Stack;
 
-public class MainFrame extends JFrame{
+public class MainFrame extends JFrame {
     public static final int MAIN_FRAME_WIDTH = 1600;
     public static final int MAIN_FRAME_HEIGHT = 800;
+    private static ChartSnapshotManager snapshotManager = new ChartSnapshotManager();
+    private Color backgroundColor;
+    private Color textColor;
     private static final int ICON_WIDTH = 20;
     private static final int ICON_HEIGHT = 20;
     private JFrame frame;
@@ -34,15 +39,18 @@ public class MainFrame extends JFrame{
     private JLabel loadedDataLabel;
     private JLabel statInfoLabel;
     private Box contents;
+    private Font textFont;
+    private ArrayList<JLabel> labelsHeap;
     private JPanel dataPanel;
     private JPanel tablePanel;
     private JPanel chartPanel;
+    private ArrayList<JButton> buttonsHeap;
     private JButton commitChangesButton;
     private JButton resetChangesButton;
     private JButton buildChartButton;
     private JButton snapshotButton;
     private JMenu settings;
-    private JMenuItem display;
+    private JPanel buttonsPanel;
     private JMenuItem settingShapshotPath;
     private JFrame shapshotPathFrame;
     private JButton setDirectoryButton;
@@ -54,26 +62,33 @@ public class MainFrame extends JFrame{
     private static JPanel canvasPanel;
     private JMenuItem convert;
     private static JTable inputTable;
-    private static StateContext tableModelContext;
-    private JMenu language;
+    private JMenuItem design;
+    private Stack<JFrame> childFrameStack;
 
-    private JTable statTable = new JTable();
-
-    public MainFrame() {
+    private MainFrame() {
         Locale locale = new Locale("ru", "RU");
         rb = ResourceBundle.getBundle("core/i18n/Resources", locale);
         create();
+        labelsHeap = new ArrayList<>();
+        buttonsHeap = new ArrayList<>();
+        backgroundColor = getBackground();
+        textColor = getForeground();
+        textFont = getFont();
         translateFileChooserText();
-        Container contentPane = this.getContentPane();
         GridLayout mainLayout = new GridLayout(0, 2);
         setLayout(mainLayout);
         dataPanel = new JPanel();
         loadedDataLabel = new JLabel(rb.getString("downloaded_data"));
-        JPanel buttonsPanel = new JPanel();
+        labelsHeap.add(loadedDataLabel);
+        buttonsPanel = new JPanel();
         FlowLayout buttonsLayout = new FlowLayout();
         buttonsPanel.setLayout(buttonsLayout);
         commitChangesButton = new JButton(rb.getString("commit_changes"));
+        buttonsHeap.add(commitChangesButton);
+        commitChangesButton.setEnabled(false);
         resetChangesButton = new JButton(rb.getString("reset_changes"));
+        buttonsHeap.add(resetChangesButton);
+        resetChangesButton.setEnabled(false);
         buttonsPanel.add(commitChangesButton);
         buttonsPanel.add(resetChangesButton);
         dataPanel.add(buttonsPanel);
@@ -94,6 +109,10 @@ public class MainFrame extends JFrame{
         tablePanel.revalidate();
 
         statInfoLabel = new JLabel(rb.getString("stat_info"));
+        labelsHeap.add(statInfoLabel);
+        statInfoLabel.setForeground(textColor);
+        loadedDataLabel.add(statInfoLabel);
+        statInfoLabel.setVisible(false);
         dataPanel.add(statInfoLabel);
 
         chartPanel = new JPanel();
@@ -114,15 +133,19 @@ public class MainFrame extends JFrame{
         chartPanel.validate();
 
         buildChartButton = new JButton(rb.getString("build_chart"));
+        buttonsHeap.add(buildChartButton);
         buildChartButton.setBackground(new Color(0x7C7CE3));
         chartPanel.add(buildChartButton, BorderLayout.SOUTH);
 
         snapshotButton = new JButton(rb.getString("save_png"));
+        buttonsHeap.add(snapshotButton);
         snapshotButton.setBackground(new Color(0xFF2424));
+        snapshotButton.setEnabled(snapshotManager.isEnabled());
         chartPanel.add(snapshotButton, BorderLayout.SOUTH);
 
         savingDirectoryPathLabel = new JLabel();
         savingDirectoryPathLabel.setText(rb.getString("snapshots_path") + snapshotManager.getSnapshotsPath());
+        labelsHeap.add(savingDirectoryPathLabel);
         chartPanel.add(savingDirectoryPathLabel);
 
 
@@ -156,16 +179,55 @@ public class MainFrame extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 ChartSettingsFrame chartSettingsFrame = new ProxyChartSettingsFrame(mediator.sendDataFrame());
                 chartSettingsFrame.displayFrame();
+                childFrameStack.push((JFrame) ((ProxyChartSettingsFrame) chartSettingsFrame).getChartSettingsFrame());
+                snapshotButton.setEnabled(snapshotManager.isEnabled());
             }
         });
 
+    }
+
+    public static MainFrame getInstance() {
+        return MainFrameHolder.instance;
+    }
+
+    public static ChartSnapshotManager getSnapshotManager() {
+        return snapshotManager;
+    }
+
+    public static void main(String[] args) {
+        MainFrame mainFrame = MainFrame.getInstance();
+        mainFrame.repaint();
+        mainFrame.revalidate();
+    }
+
+    private static StateContext tableModelContext;
+    private JMenu language;
+
+    public Color getBackgroundColor() {
+        return backgroundColor;
+    }
+    private JTable statTable = new JTable();
+
+    public void setBackgroundColor(Color backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public Color getTextColor() {
+        if (textColor != null) return textColor;
+        else return Color.black;
+    }
+
+    public void setTextColor(Color textColor) {
+        this.textColor = textColor;
     }
 
     public static JTable getInputTable() {
         return inputTable;
     }
 
-    private ChartSnapshotManager snapshotManager = new ChartSnapshotManager();
+    public Font getTextFont() {
+        return textFont;
+    }
 
     private JLabel savingDirectoryPathLabel;
 
@@ -175,6 +237,10 @@ public class MainFrame extends JFrame{
 
     public static JPanel getCanvasPanel() {
         return canvasPanel;
+    }
+
+    public void setTextFont(Font textFont) {
+        this.textFont = textFont;
     }
 
 
@@ -188,10 +254,8 @@ public class MainFrame extends JFrame{
         MainFrame.chart = chart;
     }
 
-
     private JMenu createSettingsMenu()
     {
-
         settings = new JMenu(rb.getString("settings"));
         Image image = null;
         try {
@@ -199,7 +263,7 @@ public class MainFrame extends JFrame{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        display = new JMenuItem(rb.getString("set_appearance"),
+        design = new JMenuItem(rb.getString("set_appearance"),
                 new ImageIcon(image.getScaledInstance(ICON_WIDTH, ICON_HEIGHT, Image.SCALE_DEFAULT)));
 
         try {
@@ -210,21 +274,32 @@ public class MainFrame extends JFrame{
         settingShapshotPath = new JMenuItem(rb.getString("choose_chart_directory"),
                 new ImageIcon(image.getScaledInstance(ICON_WIDTH, ICON_HEIGHT, Image.SCALE_DEFAULT)));
 
-        settings.add(display);
+        settings.add(design);
         settings.addSeparator();
         settings.add(settingShapshotPath);
 
-        settingShapshotPath.addActionListener(new ActionListener()
-        {
+
+        design.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                GUIDesignerFrame guiDesignerFrame = new GUIDesignerFrame(MainFrame.getInstance());
+                childFrameStack.push((JFrame) guiDesignerFrame);
+            }
+        });
+
+
+        settingShapshotPath.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 shapshotPathFrame = new JFrame();
-                int frameWidth = (int)(0.5 * MAIN_FRAME_WIDTH);
-                int frameHeight = (int)(0.2 * MAIN_FRAME_HEIGHT);
+                int frameWidth = (int) (0.5 * MAIN_FRAME_WIDTH);
+                int frameHeight = (int) (0.2 * MAIN_FRAME_HEIGHT);
+                childFrameStack.push(shapshotPathFrame);
                 shapshotPathFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 shapshotPathFrame.setTitle(rb.getString("choose_save_directory"));
                 shapshotPathFrame.setSize((int) (0.5 * MAIN_FRAME_WIDTH), (int) (0.2 * MAIN_FRAME_HEIGHT));
                 shapshotPathFrame.setLocationRelativeTo(null);
+                shapshotPathFrame.getContentPane().setBackground(backgroundColor);
                 shapshotPathFrame.setResizable(true);
                 shapshotPathFrame.setVisible(true);
                 shapshotPathFrame.setLayout(new FlowLayout());
@@ -235,10 +310,12 @@ public class MainFrame extends JFrame{
 
                 setDirectoryButton = new JButton(rb.getString("open"));
                 setDirectoryButton.setBackground(new Color(0x7C7CE3));
+                setDirectoryButton.setFont(textFont);
                 shapshotPathFrame.add(setDirectoryButton);
 
                 JButton okButton = new JButton(rb.getString("ok"));
                 okButton.setBackground(new Color(0xD9CFCF));
+                okButton.setFont(textFont);
                 shapshotPathFrame.add(okButton);
 
                 final String[] directoryPath = new String[1];
@@ -304,8 +381,21 @@ public class MainFrame extends JFrame{
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 JFileChooser fileChooser = new JFileChooser();
+                UIManager.getLookAndFeelDefaults().put("FileChooser.background", backgroundColor);
+                UIManager.getLookAndFeelDefaults().put("FileChooser[Enabled].backgroundPainter",
+                        new Painter<JFileChooser>() {
+                            @Override
+                            public void paint(Graphics2D g, JFileChooser object, int width, int height) {
+                                g.setColor(backgroundColor);
+                                g.draw(object.getBounds());
+
+                            }
+                        });
+
+
+                UIManager.getLookAndFeelDefaults().put("FileChooser.foreground", textColor);
                 int option = fileChooser.showOpenDialog(frame);
-                if (option == JFileChooser.APPROVE_OPTION){
+                if (option == JFileChooser.APPROVE_OPTION) {
 
                     File file = fileChooser.getSelectedFile();
                     int dotIndex = file.getAbsolutePath().lastIndexOf('.');
@@ -404,12 +494,15 @@ public class MainFrame extends JFrame{
                         statTableModel.addRow(rowStatData);
                         index++;
                     }
+                    statInfoLabel.setVisible(true);
                     statTable.setModel(statTableModel);
                     Box contents1 = new Box(BoxLayout.Y_AXIS);
                     contents1.add(new JScrollPane(statTable));
                     dataPanel.add(contents1);
                     dataPanel.repaint();
                     dataPanel.revalidate();
+                    commitChangesButton.setEnabled(true);
+                    resetChangesButton.setEnabled(true);
 
                 }else{
                     System.out.println("Open command canceled");
@@ -426,8 +519,9 @@ public class MainFrame extends JFrame{
                 if (option == JFileChooser.APPROVE_OPTION) {
                     File file = fileChooser.getSelectedFile();
                     JFrame chooseFormatsFrame = new JFrame();
-                    int frameWidth = (int)(0.5 * MAIN_FRAME_WIDTH);
-                    int frameHeight = (int)(0.2 * MAIN_FRAME_HEIGHT);
+                    chooseFormatsFrame.getContentPane().setBackground(backgroundColor);
+                    int frameWidth = (int) (0.5 * MAIN_FRAME_WIDTH);
+                    int frameHeight = (int) (0.2 * MAIN_FRAME_HEIGHT);
                     chooseFormatsFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                     chooseFormatsFrame.setTitle(rb.getString("choose_save_directory"));
                     chooseFormatsFrame.setSize((int) (0.5 * MAIN_FRAME_WIDTH), (int) (0.2 * MAIN_FRAME_HEIGHT));
@@ -436,6 +530,8 @@ public class MainFrame extends JFrame{
                     chooseFormatsFrame.setVisible(true);
                     chooseFormatsFrame.setLayout(new GridLayout(2, 0));
                     JLabel chooseFormatLabel = new JLabel(rb.getString("choose_image_formats"));
+                    chooseFormatLabel.setFont(textFont);
+
                     chooseFormatsFrame.add(chooseFormatLabel);
                     JPanel boxesPanel = new JPanel();
                     boxesPanel.setLayout(new FlowLayout());
@@ -452,8 +548,27 @@ public class MainFrame extends JFrame{
                     boxesPanel.add(gifBox);
                     boxesPanel.add(tiffBox);
 
+                    boxesPanel.setBackground(backgroundColor);
+
+                    pngBox.setBackground(backgroundColor);
+                    pngBox.setForeground(textColor);
+                    pngBox.setFont(textFont);
+                    jpegBox.setBackground(backgroundColor);
+                    jpegBox.setForeground(textColor);
+                    jpegBox.setFont(textFont);
+                    bmpBox.setBackground(backgroundColor);
+                    bmpBox.setForeground(textColor);
+                    bmpBox.setFont(textFont);
+                    gifBox.setBackground(backgroundColor);
+                    gifBox.setForeground(textColor);
+                    gifBox.setFont(textFont);
+                    tiffBox.setBackground(backgroundColor);
+                    tiffBox.setForeground(textColor);
+                    tiffBox.setFont(textFont);
+
                     JButton okButton = new JButton(rb.getString("ok"));
                     okButton.setBackground(new Color(0x7C7CE3));
+                    okButton.setFont(textFont);
                     boxesPanel.add(okButton);
 
                     chooseFormatsFrame.add(boxesPanel);
@@ -621,13 +736,31 @@ public class MainFrame extends JFrame{
         snapshotButton.setText(rb.getString("save_png"));
         savingDirectoryPathLabel.setText(rb.getString("snapshots_path") + snapshotManager.getSnapshotsPath());
         settings.setText(rb.getString("settings"));
-        display.setText(rb.getString("set_appearance"));
+        design.setText(rb.getString("set_appearance"));
         settingShapshotPath.setText(rb.getString("choose_chart_directory"));
         file.setText(rb.getString("file"));
         open.setText(rb.getString("open"));
         convert.setText(rb.getString("convert_image"));
         language.setText(rb.getString("language"));
         translateFileChooserText();
+    }
+
+    public void updateDesign() {
+        dataPanel.setBackground(backgroundColor);
+        chartPanel.setBackground(backgroundColor);
+        tablePanel.setBackground(backgroundColor);
+        buttonsPanel.setBackground(backgroundColor);
+
+        for (JLabel label : labelsHeap) {
+            label.setForeground(textColor);
+            label.setFont(textFont);
+        }
+
+        for (JButton button : buttonsHeap) {
+            button.setFont(textFont);
+        }
+
+
     }
 
 
@@ -646,6 +779,16 @@ public class MainFrame extends JFrame{
         menuBar.add(Box.createHorizontalGlue());
         menuBar.add(createLanguageMenu());
         this.setJMenuBar(menuBar);
+        childFrameStack = new Stack<>();
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                while (!childFrameStack.empty()) {
+                    JFrame childFrame = childFrameStack.pop();
+                    if (childFrame != null) childFrame.dispose();
+                }
+                System.exit(0);
+            }
+        });
     }
 
     private void translateFileChooserText() {
@@ -662,10 +805,7 @@ public class MainFrame extends JFrame{
         UIManager.put("FileChooser.saveButtonText", rb.getString("save"));
     }
 
-
-    public static void main(String[] args) {
-        MainFrame mainFrame = new MainFrame();
-        mainFrame.repaint();
-        mainFrame.revalidate();
+    private static class MainFrameHolder {
+        private final static MainFrame instance = new MainFrame();
     }
 }

@@ -1,6 +1,7 @@
 package tools;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Paths;
@@ -31,7 +32,13 @@ public class ImageConverter {
         try (InputStream is = new FileInputStream(inputFile)) {
             BufferedImage image = ImageIO.read(is);
             try (OutputStream os = new FileOutputStream(outputFile)) {
-                ImageIO.write(image, format, os);
+                if (!format.equals("jpeg")) {
+                    ImageIO.write(image, format, os);
+                } else {
+                    BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+                    newImage.createGraphics().drawImage(image, 0, 0, Color.BLACK, null);
+                    ImageIO.write(newImage, "jpeg", os);
+                }
             } catch (Exception exp) {
                 System.err.println("ОШИБКА: Нет такого выходящего файла или каталога");
                 return null;

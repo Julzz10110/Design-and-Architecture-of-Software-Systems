@@ -14,6 +14,7 @@ import java.awt.event.ItemListener;
 
 import static core.MainFrame.getCanvasPanel;
 
+
 public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame {
     private static final int SETTINGS_FRAME_WIDTH = (int) (0.5 * MainFrame.MAIN_FRAME_WIDTH);
     private static final int SETTINGS_FRAME_HEIGHT = (int) (0.5 * MainFrame.MAIN_FRAME_HEIGHT);
@@ -46,6 +47,7 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle(MainFrame.getResourceBundle().getString("chart_settings"));
         setSize(SETTINGS_FRAME_WIDTH, SETTINGS_FRAME_HEIGHT);
+        setBackground(MainFrame.getCanvasPanel().getBackground());
 
         this.dataFrame = dataFrame;
 
@@ -102,6 +104,7 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
 
         settingsPanel.add(legendCheckBox);
         settingsPanel.add(okButton);
+        updateDesign();
 
         xyRadioButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -179,8 +182,41 @@ public class RealChartSettingsFrame extends JFrame implements ChartSettingsFrame
 
     @Override
     public void displayFrame() {
+        MainFrame.getSnapshotManager().setEnabled(true);
         setLocationRelativeTo(null);
         setResizable(false);
         setVisible(true);
+    }
+
+    private void updateDesign() {
+        titleLabel.setForeground(MainFrame.getInstance().getTextColor());
+        ;
+        argumentsLabel.setForeground(MainFrame.getInstance().getTextColor());
+        valuesLabel.setForeground(MainFrame.getInstance().getTextColor());
+        xyRadioButton.setForeground(MainFrame.getInstance().getTextColor());
+        barRadioButton.setForeground(MainFrame.getInstance().getTextColor());
+        pieRadioButton.setForeground(MainFrame.getInstance().getTextColor());
+        pie3DRadioButton.setForeground(MainFrame.getInstance().getTextColor());
+        legendCheckBox.setForeground(MainFrame.getInstance().getTextColor());
+
+
+        titleLabel.setFont(MainFrame.getInstance().getTextFont());
+        ;
+        argumentsLabel.setFont(MainFrame.getInstance().getTextFont());
+        valuesLabel.setFont(MainFrame.getInstance().getTextFont());
+        xyRadioButton.setFont(MainFrame.getInstance().getTextFont());
+        barRadioButton.setFont(MainFrame.getInstance().getTextFont());
+        pieRadioButton.setFont(MainFrame.getInstance().getTextFont());
+        pie3DRadioButton.setFont(MainFrame.getInstance().getTextFont());
+        legendCheckBox.setFont(MainFrame.getInstance().getTextFont());
+        okButton.setFont(MainFrame.getInstance().getTextFont());
+
+        xyRadioButton.setBackground(MainFrame.getInstance().getBackgroundColor());
+        barRadioButton.setBackground(MainFrame.getInstance().getBackgroundColor());
+        pieRadioButton.setBackground(MainFrame.getInstance().getBackgroundColor());
+        pie3DRadioButton.setBackground(MainFrame.getInstance().getBackgroundColor());
+        legendCheckBox.setBackground(MainFrame.getInstance().getBackgroundColor());
+        settingsPanel.setBackground(MainFrame.getInstance().getBackgroundColor());
+        concretePanel.setBackground(MainFrame.getInstance().getBackgroundColor());
     }
 }

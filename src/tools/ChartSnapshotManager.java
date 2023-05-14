@@ -12,10 +12,20 @@ public class ChartSnapshotManager {
 
     private String snapshotsPath = DEFAULT_SNAPSHOTS_PATH;
 
-    public static final String DEFAULT_SNAPSHOTS_PATH = "/home/rustam/vizualizator_test_data/snapshots";
+
+    public static final String DEFAULT_SNAPSHOTS_PATH = System.getProperty("user.home");
+    private boolean isEnabled = false;
 
     public String getSnapshotsPath() {
         return snapshotsPath;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
     }
 
     public void setSnapshotsPath(String snapshotsPath) {

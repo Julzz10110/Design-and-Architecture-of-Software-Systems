@@ -10,6 +10,10 @@ public class ProxyChartSettingsFrame implements ChartSettingsFrame {
         this.dataFrame = dataFrame;
     }
 
+    public RealChartSettingsFrame getChartSettingsFrame() {
+        return chartSettingsFrame;
+    }
+
     @Override
     public void displayFrame() {
         if (chartSettingsFrame == null && dataFrame != null) {
